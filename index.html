@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>InnoVint Google Form Integration</title>
+    <script src="https://cdn.skypack.dev/@innovint/cellar-frame-api"></script>
+    <style>
+        /* Ensures the iframe and its container fill the entire window */
+        body, html { 
+            margin: 0; 
+            padding: 0; 
+            height: 100%; 
+            width: 100%; 
+            overflow: hidden; 
+        }
+        .form-container { 
+            width: 100%; 
+            height: 100%; 
+        }
+        /* Make the Google Form iframe fill its container */
+        iframe { 
+            width: 100%; 
+            height: 100%; 
+            border: none; 
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <iframe 
+            src="https://docs.google.com/forms/d/e/1FAIpQLSeX-dcUhWSfQIRudZdFAvkTNlsvsBozpYhnFVlrEaZLzlqkoQ/viewform?embedded=true" 
+            width="100%" 
+            height="100%" 
+            frameborder="0" 
+            marginheight="0" 
+            marginwidth="0">
+            Loading…
+        </iframe>
+    </div>
+
+    <script>
+        const innovint = window['innovint-api'].default;
+
+        // --- Configure the InnoVint Button Logic ---
+        innovint.setShouldShowButton((data) => {
+            // Example: Only show the button on the Lot Details page
+            if (data.state === 'home.winery.lot') {
+                return {
+                    show: true,
+                    buttonText: 'Lot Compliance Form', // Custom button text
+                };
+            }
+            
+            // Example: Show a different button on the Vessel Explorer page
+            if (data.state === 'home.winery.vessels') {
+                 return {
+                    show: true,
+                    buttonText: 'Vessel Maintenance Log',
+                };
+            }
+
+            // Hide the button on all other pages
+            return {
+                show: false,
+                buttonText: 'Form',
+            };
+        });
+
+        // --- Optional: Log state changes and use data ---
+        innovint.onOpen$.subscribe((location) => {
+            console.log('iFrame opened on:', location.state);
+            if (location.state === 'home.winery.lot') {
+                console.log('Current Lot Code is:', location.stateParams.lotCode);
+                // Advanced: You could use this Lot Code to pre-fill the form 
+                // by dynamically changing the iframe's src, but that requires
+                // configuring the Google Form URL with pre-filled fields.
+            }
+        });
+    </script>
+</body>
+</html>
